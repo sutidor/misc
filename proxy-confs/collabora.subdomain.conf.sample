@@ -1,0 +1,104 @@
+# make sure that your dns has a cname set for collabora and that your collabora container is named collabora
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name collabora.*;
+
+    include /config/nginx/ssl.conf;
+    include /config/nginx/proxy.conf;
+
+    error_log /config/log/nginx/colerror.log warn;
+    access_log /config/log/nginx/colaccess.log;
+
+    location / {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port$request_uri;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # static files
+    location ^~ /loleaflet {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+
+        proxy_set_header Host $http_host;
+    }
+
+    # WOPI discovery URL
+    location ^~ /hosting/discovery {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port$request_uri;
+
+        proxy_set_header Host $http_host;
+    }
+
+    # Capabilities
+    location ^~ /hosting/capabilities {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port$request_uri;
+
+        proxy_set_header Host $http_host;
+    }
+
+    # main websocket
+    location ~ ^/lool/(.*)/ws$ {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port$request_uri;
+
+        #https://git.libreoffice.org/online/+/master/etc/nginx/loolwsd.conf
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+
+        proxy_set_header Host $http_host;
+        proxy_read_timeout 36000s;
+
+
+    }
+
+    # download, presentation and image upload
+    location ~ ^/lool {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port$request_uri;
+
+        proxy_set_header Host $http_host;
+    }
+
+    # Admin Console websocket
+    location ^~ /lool/adminws {
+
+        set $upstream_app collabora;
+        set $upstream_port 9980;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port$request_uri;
+
+        #https://git.libreoffice.org/online/+/master/etc/nginx/loolwsd.conf
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $http_host;
+        proxy_read_timeout 36000s;
+    }
+}
