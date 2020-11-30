@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>Whoogle</ShortName>
+  <Description>Whoogle: A lightweight, deployable Google search proxy for desktop/mobile that removes Javascript, AMP links, and ads</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="60" height="60" type="image/png"> data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hS$
+  <Url type="text/html" method="get" template="{{ main_url }}/search?q={searchTerms}"></Url>
+  <Url type="application/x-suggestions+json" template="{{ main_url }}/autocomplete?q={searchTerms}"></Url>
+  <moz:SearchForm>{{ main_url }}/search</moz:SearchForm>
+</OpenSearchDescription>
