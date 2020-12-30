@@ -1,4 +1,4 @@
-# make sure that your dns has a cname set for google and that your google container is named whoogle-search
+# make sure that your dns has a cname set for google and that your whoogle container is named whoogle-search
 
 server {
     listen 443 ssl;
