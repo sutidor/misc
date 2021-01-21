@@ -1,3 +1,4 @@
+# make sure that your dns has a cname set for matomo "ma"
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
