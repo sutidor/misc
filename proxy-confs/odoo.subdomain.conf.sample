@@ -1,0 +1,57 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name odoo.*;
+
+    include /config/nginx/ssl.conf;
+    #enable for Authelia support
+    include /config/nginx/authelia-server.conf;
+    proxy_read_timeout 720s;
+    proxy_connect_timeout 720s;
+    proxy_send_timeout 720s;
+    #  proxy_set_header X-Forwarded-Host $host;
+    #  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #  proxy_set_header X-Forwarded-Proto $scheme;
+    #  proxy_set_header X-Real-IP $remote_addr;
+
+     location / {
+        proxy_redirect off;
+        include /config/nginx/proxy.conf;
+        resolver 127.0.0.11 valid=30s;
+        set $upstream_app odoo;
+        set $upstream_port 8069;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+     }
+
+     location ~* /web/static/ {
+        proxy_cache_valid 200 90m;
+        proxy_buffering on;
+        expires 864000;
+        include /config/nginx/proxy.conf;
+        resolver 127.0.0.11 valid=30s;
+        set $upstream_app odoo;
+        set $upstream_port 8069;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+     }
+
+      location ~* /web/database/manager {
+         #database manager should be disabled or protected
+         #enable for Authelia support
+         include /config/nginx/authelia-location.conf;
+         proxy_redirect off;
+         include /config/nginx/proxy.conf;
+         resolver 127.0.0.11 valid=30s;
+         set $upstream_app odoo;
+         set $upstream_port 8069;
+         set $upstream_proto http;
+         proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+     }
+     
+
+     gzip_types text/css text/less text/plain text/xml application/xml application/json application/javascript;
+     gzip on;
+ }
+# vim: filetype=nginx
