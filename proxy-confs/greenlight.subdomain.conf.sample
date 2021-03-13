@@ -1,0 +1,67 @@
+# Routes requests to Greenlight based on the '/b' prefix.
+# Use this file to route '/b' paths on your BigBlueButton server
+# to the Greenlight application. If you are using a different
+# subpath, you should change it here.
+# location /b {
+# location /b/cable {
+# Only needed if using presentations and deployed at a relative root (ex "/b")
+# If deploying at "/", delete the section below
+
+
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name greenlight.*;
+
+    include /config/nginx/ssl.conf;
+
+    client_max_body_size 0;
+
+    
+    location / {
+      include /config/nginx/proxy.conf;
+      resolver 127.0.0.11 valid=30s;
+      set $upstream_app greenlight;
+      set $upstream_port 80;
+      set $upstream_proto http;      
+      proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+      proxy_set_header    Host              $host;
+      proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header    X-Forwarded-Proto $scheme;
+    }
+
+    
+    location /cable {
+      set $upstream_app greenlight;
+      set $upstream_port 80;
+      set $upstream_proto http;
+      proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+      proxy_set_header    Host              $host;
+      proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header    X-Forwarded-Proto $scheme;
+      proxy_set_header    Upgrade           $http_upgrade;
+      proxy_set_header    Connection        "Upgrade";
+      proxy_read_timeout  6h;
+      proxy_send_timeout  6h;
+      client_body_timeout 6h;
+      send_timeout        6h;
+    }
+
+    # Allow larger body size for uploading presentations
+    location ~ /preupload_presentation$ {
+      client_max_body_size 30m;
+      set $upstream_app greenlight;
+      set $upstream_port 80;
+      set $upstream_proto http;
+      proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+      proxy_set_header    Host              $host;
+      proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header    X-Forwarded-Proto $scheme;
+    }
+
+    # location /rails/active_storage {
+    #   return 301 /b$request_uri;
+    # }    
+}
