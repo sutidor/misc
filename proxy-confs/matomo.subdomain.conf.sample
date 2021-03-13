@@ -3,7 +3,7 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name ma.*;
+    server_name matomo.*;
 
     include /config/nginx/ssl.conf;
 
