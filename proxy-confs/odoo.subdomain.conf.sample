@@ -33,7 +33,7 @@ server {
         proxy_pass $upstream_proto://$upstream_app:$upstream_port;
      }
 
-      location ~* /web/database/manager {
+      location ~* /web/database {
          #database manager should be disabled or protected
          #enable for Authelia support
          include /config/nginx/authelia-location.conf;
