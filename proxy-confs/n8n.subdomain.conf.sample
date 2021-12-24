@@ -22,7 +22,7 @@ server {
         proxy_buffering off;
         proxy_cache off;
         include /config/nginx/proxy.conf;
-        resolver 127.0.0.11 valid=30s;
+        include /config/nginx/resolver.conf;
         set $upstream_app n8n;
         set $upstream_port 5678;
         set $upstream_proto http;
@@ -36,7 +36,7 @@ server {
         proxy_buffering off;
         proxy_cache off;
         include /config/nginx/proxy.conf;
-        resolver 127.0.0.11 valid=30s;
+        include /config/nginx/resolver.conf;
         set $upstream_app n8n;
         set $upstream_port 5678;
         set $upstream_proto http;
