@@ -2,7 +2,7 @@ server {
     listen 443 ssl;
     listen [::]:443 ssl;
 
-    server_name odoo.*;
+    server_name ~^(odoo|erp).+$;
 
     include /config/nginx/ssl.conf;
     #enable for Authelia support
