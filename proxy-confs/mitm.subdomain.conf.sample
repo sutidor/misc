@@ -1,0 +1,69 @@
+## Version 2022/09/08
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    error_log /config/log/nginx/mitm_error.log warn;
+    access_log /config/log/nginx/mitm_access.log;
+
+    server_name mitm.*;
+
+    include /config/nginx/ssl.conf;
+
+    client_max_body_size 0;
+
+    # enable for ldap auth (requires ldap-location.conf in the location block)
+    #include /config/nginx/ldap-server.conf;
+
+    # enable for Authelia (requires authelia-location.conf in the location block)
+    #include /config/nginx/authelia-server.conf;
+
+    location / {
+        # enable the next two lines for http auth
+        auth_basic "Restricted";
+        auth_basic_user_file /config/nginx/.htpasswd;
+
+        # enable for ldap auth (requires ldap-server.conf in the server block)
+        #include /config/nginx/ldap-location.conf;
+
+        # enable for Authelia (requires authelia-server.conf in the server block)
+        #include /config/nginx/authelia-location.conf;
+
+        #include /config/nginx/proxy.conf;
+        include /config/nginx/resolver.conf;
+        set $upstream_app 172.18.0.3;
+        set $upstream_port 8081;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+        # Timeout if the real server is dead
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
+
+        # Proxy Connection Settings
+        proxy_buffers 32 4k;
+        proxy_connect_timeout 240;
+        proxy_headers_hash_bucket_size 128;
+        proxy_headers_hash_max_size 1024;
+        proxy_http_version 1.1;
+        proxy_read_timeout 36000;
+        proxy_redirect  http://  $scheme://;
+        proxy_send_timeout 36000;
+
+        # Proxy Cache and Cookie Settings
+        proxy_cache_bypass $cookie_session;
+        #proxy_cookie_path / "/; Secure"; # enable at your own risk, may break certain apps
+        proxy_no_cache $cookie_session;
+
+        # Proxy Header Settings
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Early-Data $ssl_early_data;
+        proxy_set_header Host $host;
+        proxy_set_header Proxy "";
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Ssl on;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
