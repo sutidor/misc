@@ -15,8 +15,8 @@ server {
 
     client_max_body_size 100M;
     
-    access_log  /config/log/nginx/supabase.access.log;
-    error_log   /config/log/nginx/supabase.error.log;
+    #access_log  /config/log/nginx/supabase.access.log;
+    #error_log   /config/log/nginx/supabase.error.log;
 
     auth_basic "Supabase Studio Login";
     auth_basic_user_file /config/.htpasswd;
